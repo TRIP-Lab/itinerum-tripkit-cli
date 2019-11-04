@@ -1,0 +1,6 @@
+*.json
+*.pickle
+cli-venv
+input
+itinerum_tripkit_cli.egg-info
+output

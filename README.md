@@ -30,6 +30,8 @@ DATABASE_FN = 'itinerum_data.sqlite'
 
 # path of raw data directory exported from Itinerum platform or Qstarz
 INPUT_DATA_DIR = './input/csv-data-dir'
+# types: "itinerum" or "qstarz"
+INPUT_DATA_TYPE = 'itinerum'
 
 # path of export data from itinerum-cli
 OUTPUT_DATA_DIR = './output'

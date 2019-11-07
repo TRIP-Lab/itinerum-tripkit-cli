@@ -6,41 +6,41 @@ import os
 import pickle
 import sys
 
-import tripkit
+from itinerum_tripkit import TripKit
 
 logger = logging.getLogger('itinerum-tripkit-cli.runners.qstarz')
 
 
 def setup(cfg):
-    itinerum = tripkit.Itinerum(config=cfg)
-    itinerum.setup(force=False)
-    return itinerum
+    tripkit = TripKit(config=cfg)
+    tripkit.setup(force=False)
+    return tripkit
 
 
-def load_users(itinerum, user_id):
+def load_users(tripkit, user_id):
     if user_id:
         logger.info(f'Loading user by ID: {user_id}')
-        user = itinerum.load_user_by_orig_id(orig_id=user_id)
+        user = tripkit.load_user_by_orig_id(orig_id=user_id)
         if not user:
             click.echo(f'Error: Valid data for user {user_id} not found.')
             sys.exit(1)
         return [user]
-    return itinerum.load_users()
+    return tripkit.load_users()
 
 
 def write_input_data(user):
-    itinerum.io.write_input_geojson(
+    tripkit.io.write_input_geojson(
         fn_base=user.uuid,
         coordinates=user.coordinates,
         prompts=user.prompt_responses,
         cancelled_prompts=user.cancelled_prompt_responses,
     )
 
-def cache_prepared_data(itinerum, user):
+def cache_prepared_data(tripkit, user):
     pickle_fp = f'{user.uuid}.pickle'
     if not os.path.exists(pickle_fp):
         logger.debug('Pre-processing raw coordinates data to remove empty points and duplicates...')
-        prepared_coordinates = itinerum.process.canue.preprocess.run(user.coordinates)
+        prepared_coordinates = tripkit.process.canue.preprocess.run(user.coordinates)
         with open(pickle_fp, 'wb') as pickle_f:
             pickle.dump(prepared_coordinates, pickle_f)
     with open(pickle_fp, 'rb') as pickle_f:
@@ -49,34 +49,34 @@ def cache_prepared_data(itinerum, user):
     return prepared_coordinates
 
 
-def detect_activity_locations(cfg, itinerum, user, prepared_coordinates):
+def detect_activity_locations(cfg, tripkit, user, prepared_coordinates):
     logger.debug('Clustering coordinates to determine activity locations between trips...')
-    kmeans_groups = itinerum.process.canue.kmeans.run(prepared_coordinates)
-    delta_heading_stdev_groups = itinerum.process.canue.delta_heading_stdev.run(prepared_coordinates)
-    locations = itinerum.process.activities.canue.detect_locations.run(kmeans_groups, delta_heading_stdev_groups)
-    itinerum.io.geojson.write_semantic_locations(fn_base=user.uuid, locations=locations)
+    kmeans_groups = tripkit.process.canue.kmeans.run(prepared_coordinates)
+    delta_heading_stdev_groups = tripkit.process.canue.delta_heading_stdev.run(prepared_coordinates)
+    locations = tripkit.process.activities.canue.detect_locations.run(kmeans_groups, delta_heading_stdev_groups)
+    tripkit.io.geojson.write_semantic_locations(fn_base=user.uuid, locations=locations)
     return locations
 
 
-def detect_trips(cfg, itinerum, user, prepared_coordinates, locations):
+def detect_trips(cfg, tripkit, user, prepared_coordinates, locations):
     logger.debug('Detecting trips from GPS coordinates data...')
-    user.trips = itinerum.process.trip_detection.canue.algorithm.run(cfg, prepared_coordinates, locations)
-    itinerum.database.save_trips(user, user.trips)
-    itinerum.io.geojson.write_trips(fn_base=user.uuid, trips=user.trips)
+    user.trips = tripkit.process.trip_detection.canue.algorithm.run(cfg, prepared_coordinates, locations)
+    tripkit.database.save_trips(user, user.trips)
+    tripkit.io.geojson.write_trips(fn_base=user.uuid, trips=user.trips)
 
 
-def detect_complete_day_summaries(cfg, itinerum, user):
+def detect_complete_day_summaries(cfg, tripkit, user):
     logger.debug('Generating complete days summaries...')
-    complete_day_summaries = itinerum.process.complete_days.canue.counter.run(user.trips, cfg.TIMEZONE)
-    itinerum.database.save_trip_day_summaries(user, complete_day_summaries, cfg.TIMEZONE)
-    itinerum.io.csv.write_complete_days({user.uuid: complete_day_summaries})
+    complete_day_summaries = tripkit.process.complete_days.canue.counter.run(user.trips, cfg.TIMEZONE)
+    tripkit.database.save_trip_day_summaries(user, complete_day_summaries, cfg.TIMEZONE)
+    tripkit.io.csv.write_complete_days({user.uuid: complete_day_summaries})
 
 
-def detect_activity_summaries(cfg, itinerum, user, locations):
+def detect_activity_summaries(cfg, tripkit, user, locations):
     logger.debug('Generating dwell time at activity locations summaries...')
-    activity = itinerum.process.activities.canue.tally_times.run(user, locations, cfg.SEMANTIC_LOCATION_PROXIMITY_METERS)
-    activity_summaries = itinerum.process.activities.canue.summarize.run_full(activity, cfg.TIMEZONE)
-    itinerum.io.csv.write_activities_daily(activity_summaries['records'], extra_cols=activity_summaries['duration_keys'])
+    activity = tripkit.process.activities.canue.tally_times.run(user, locations, cfg.SEMANTIC_LOCATION_PROXIMITY_METERS)
+    activity_summaries = tripkit.process.activities.canue.summarize.run_full(activity, cfg.TIMEZONE)
+    tripkit.io.csv.write_activities_daily(activity_summaries['records'], extra_cols=activity_summaries['duration_keys'])
 
 @click.command()
 @click.option('-u', '--user', 'user_id', help='The user ID to process a single user only.')
@@ -92,8 +92,8 @@ def run(ctx, user_id, write_inputs, trips_only, complete_days_only, activity_sum
 
     cfg = ctx.obj['config']
     cfg.INPUT_DATA_TYPE = 'qstarz'
-    itinerum = setup(cfg)
-    users = load_users(itinerum, user_id)
+    tripkit = setup(cfg)
+    users = load_users(tripkit, user_id)
 
     for user in users:
         if write_inputs:
@@ -106,27 +106,27 @@ def run(ctx, user_id, write_inputs, trips_only, complete_days_only, activity_sum
             if not user.coordinates.count():
                 click.echo(f'No coordinates available for user: {user.uuid}')
             else:
-                prepared_coordinates = cache_prepared_data(itinerum, user)
-                locations = detect_activity_locations(cfg, itinerum, user, prepared_coordinates)
-                detect_trips(cfg, itinerum, user, prepared_coordinates, locations)
+                prepared_coordinates = cache_prepared_data(tripkit, user)
+                locations = detect_activity_locations(cfg, tripkit, user, prepared_coordinates)
+                detect_trips(cfg, tripkit, user, prepared_coordinates, locations)
         elif complete_days_only:
             if not user.trips:
                 click.echo(f'No trips available for user: {user.uuid}')
             else:
-                detect_complete_day_summaries(cfg, itinerum, user)
+                detect_complete_day_summaries(cfg, tripkit, user)
         elif activity_summaries_only:
             if not user.trips:
                 click.echo(f'No trips available for user: {user.uuid}')
             else:
-                prepared_coordinates = cache_prepared_data(itinerum, user)
-                locations = detect_activity_locations(cfg, itinerum, user, prepared_coordinates)
-                detect_activity_summaries(cfg, itinerum, user, locations)
+                prepared_coordinates = cache_prepared_data(tripkit, user)
+                locations = detect_activity_locations(cfg, tripkit, user, prepared_coordinates)
+                detect_activity_summaries(cfg, tripkit, user, locations)
         else:
-            prepared_coordinates = cache_prepared_data(itinerum, user)
-            locations = detect_activity_locations(cfg, itinerum, user, prepared_coordinates)
-            detect_trips(cfg, itinerum, user, prepared_coordinates, locations)
+            prepared_coordinates = cache_prepared_data(tripkit, user)
+            locations = detect_activity_locations(cfg, tripkit, user, prepared_coordinates)
+            detect_trips(cfg, tripkit, user, prepared_coordinates, locations)
             if not user.trips:
                 click.echo(f'No trips available for user: {user.uuid}')
             else:
-                detect_complete_day_summaries(cfg, itinerum, user)
-                detect_activity_summaries(cfg, itinerum, user, locations)
+                detect_complete_day_summaries(cfg, tripkit, user)
+                detect_activity_summaries(cfg, tripkit, user, locations)

@@ -5,22 +5,22 @@ from collections import namedtuple
 import logging
 import sys
 
-import tripkit
+from itinerum_tripkit import TripKit
 
 logger = logging.getLogger('itinerum-tripkit-cli.runners.itinerum')
 
 
 def setup(cfg):
-    itinerum = tripkit.Itinerum(config=cfg)
-    itinerum.setup(force=False)
-    return itinerum
+    tripkit = TripKit(config=cfg)
+    tripkit.setup(force=False)
+    return tripkit
 
 
-def load_users(itinerum, user_id):
+def load_users(tripkit, user_id):
     if user_id:
         logger.info(f'Loading user by ID: {user_id}')
-        return [itinerum.load_users(uuid=user_id)]
-    return itinerum.load_users()
+        return [tripkit.load_users(uuid=user_id)]
+    return tripkit.load_users()
 
 
 def create_activity_locations(user):
@@ -44,33 +44,31 @@ def create_activity_locations(user):
     return locations
 
 
-def detect_trips(cfg, itinerum, user):
+def detect_trips(cfg, tripkit, user):
     parameters = {
-        'subway_entrances': itinerum.database.load_subway_entrances(),
+        'subway_entrances': tripkit.database.load_subway_entrances(),
         'break_interval_seconds': cfg.TRIP_DETECTION_BREAK_INTERVAL_SECONDS,
         'subway_buffer_meters': cfg.TRIP_DETECTION_SUBWAY_BUFFER_METERS,
         'cold_start_distance': cfg.TRIP_DETECTION_COLD_START_DISTANCE_METERS,
         'accuracy_cutoff_meters': cfg.TRIP_DETECTION_ACCURACY_CUTOFF_METERS,
     }
-    user.trips = itinerum.process.trip_detection.triplab.v2.algorithm.run(user.coordinates, parameters=parameters)
-    trip_summaries = itinerum.process.trip_detection.triplab.v2.summarize.run(user, cfg.TIMEZONE)
-    itinerum.database.save_trips(user, user.trips)
-    itinerum.io.geojson.write_trips(fn_base=user.uuid, trips=user.trips)
-    itinerum.io.csv.write_trip_summaries(fn_base=user.uuid, summaries=trip_summaries)
+    user.trips = tripkit.process.trip_detection.triplab.v2.algorithm.run(user.coordinates, parameters=parameters)
+    trip_summaries = tripkit.process.trip_detection.triplab.v2.summarize.run(user, cfg.TIMEZONE)
+    tripkit.database.save_trips(user, user.trips)
+    tripkit.io.geojson.write_trips(fn_base=user.uuid, trips=user.trips)
+    tripkit.io.csv.write_trip_summaries(fn_base=user.uuid, summaries=trip_summaries)
 
 
-def detect_complete_day_summaries(cfg, itinerum, user):
-    complete_day_summaries = itinerum.process.complete_days.triplab.counter.run(user.trips, cfg.TIMEZONE)
-    itinerum.database.save_trip_day_summaries(user, complete_day_summaries, cfg.TIMEZONE)
-    itinerum.io.csv.write_complete_days({user.uuid: complete_day_summaries})
+def detect_complete_day_summaries(cfg, tripkit, user):
+    complete_day_summaries = tripkit.process.complete_days.triplab.counter.run(user.trips, cfg.TIMEZONE)
+    tripkit.database.save_trip_day_summaries(user, complete_day_summaries, cfg.TIMEZONE)
+    tripkit.io.csv.write_complete_days({user.uuid: complete_day_summaries})
 
 
-def detect_activity_summaries(cfg, itinerum, user):
+def detect_activity_summaries(cfg, tripkit, user):
     locations = create_activity_locations(user)
-    activity = itinerum.process.activities.triplab.detect.run(
-        user, locations, cfg.SEMANTIC_LOCATION_PROXIMITY_METERS
-    )
-    activity_summaries_full = itinerum.process.activities.triplab.summarize.run_full(activity, cfg.TIMEZONE)
+    activity = tripkit.process.activities.triplab.detect.run(user, locations, cfg.SEMANTIC_LOCATION_PROXIMITY_METERS)
+    activity_summaries_full = tripkit.process.activities.triplab.summarize.run_full(activity, cfg.TIMEZONE)
     duration_cols = [
         'commute_time_work_s',
         'commute_time_study_s',
@@ -78,7 +76,7 @@ def detect_activity_summaries(cfg, itinerum, user):
         'dwell_time_work_s',
         'dwell_time_study_s',
     ]
-    itinerum.io.csv.write_activities_daily(activity_summaries_full, extra_cols=duration_cols)
+    tripkit.io.csv.write_activities_daily(activity_summaries_full, extra_cols=duration_cols)
 
 
 @click.command()
@@ -94,15 +92,15 @@ def run(ctx, user_id, write_inputs, trips_only, complete_days_only, activity_sum
         sys.exit(1)
 
     cfg = ctx.obj['config']
-    itinerum = setup(cfg)
-    users = load_users(itinerum, user_id)
+    tripkit = setup(cfg)
+    users = load_users(tripkit, user_id)
 
     for user in users:
         if write_inputs:
             if len(users) > 1:
                 cli.echo('Warning: Multiple users selected, continue writing input data? (y/n)')
                 sys.exit(1)
-            itinerum.io.write_input_geojson(
+            tripkit.io.write_input_geojson(
                 fn_base=user.uuid,
                 coordinates=user.coordinates,
                 prompts=user.prompt_responses,
@@ -113,21 +111,21 @@ def run(ctx, user_id, write_inputs, trips_only, complete_days_only, activity_sum
             if not user.coordinates.count():
                 click.echo(f'No coordinates available for user: {user.uuid}')
             else:
-                detect_trips(cfg, itinerum, user)
+                detect_trips(cfg, tripkit, user)
         elif complete_days_only:
             if not user.trips:
                 click.echo(f'No trips available for user: {user.uuid}')
             else:
-                detect_complete_day_summaries(cfg, itinerum, user)
+                detect_complete_day_summaries(cfg, tripkit, user)
         elif activity_summaries_only:
             if not user.trips:
                 click.echo(f'No trips available for user: {user.uuid}')
             else:
-                detect_activity_summaries(cfg, itinerum, user)
+                detect_activity_summaries(cfg, tripkit, user)
         else:
-            detect_trips(cfg, itinerum, user)
+            detect_trips(cfg, tripkit, user)
             if not user.trips:
                 click.echo(f'No trips available for user: {user.uuid}')
             else:
-                detect_complete_day_summaries(cfg, itinerum, user)
-                detect_activity_summaries(cfg, itinerum, user)
+                detect_complete_day_summaries(cfg, tripkit, user)
+                detect_activity_summaries(cfg, tripkit, user)

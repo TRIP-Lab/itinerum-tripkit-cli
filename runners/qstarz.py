@@ -6,7 +6,8 @@ import os
 import pickle
 import sys
 
-from itinerum_tripkit import TripKit
+from tripkit import TripKit
+from tripkit.utils.misc import temp_path
 
 logger = logging.getLogger('itinerum-tripkit-cli.runners.qstarz')
 
@@ -37,7 +38,7 @@ def write_input_data(user):
     )
 
 def cache_prepared_data(tripkit, user):
-    pickle_fp = f'{user.uuid}.pickle'
+    pickle_fp = temp_path(f'{user.uuid}.pickle')
     if not os.path.exists(pickle_fp):
         logger.debug('Pre-processing raw coordinates data to remove empty points and duplicates...')
         prepared_coordinates = tripkit.process.canue.preprocess.run(user.coordinates)
@@ -51,8 +52,8 @@ def cache_prepared_data(tripkit, user):
 
 def detect_activity_locations(cfg, tripkit, user, prepared_coordinates):
     logger.debug('Clustering coordinates to determine activity locations between trips...')
-    kmeans_groups = tripkit.process.canue.kmeans.run(prepared_coordinates)
-    delta_heading_stdev_groups = tripkit.process.canue.delta_heading_stdev.run(prepared_coordinates)
+    kmeans_groups = tripkit.process.clustering.kmeans.run(prepared_coordinates)
+    delta_heading_stdev_groups = tripkit.process.clustering.delta_heading_stdev.run(prepared_coordinates)
     locations = tripkit.process.activities.canue.detect_locations.run(kmeans_groups, delta_heading_stdev_groups)
     tripkit.io.geojson.write_semantic_locations(fn_base=user.uuid, locations=locations)
     return locations

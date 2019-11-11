@@ -5,7 +5,7 @@ from collections import namedtuple
 import logging
 import sys
 
-from itinerum_tripkit import TripKit
+from tripkit import TripKit, utils
 
 logger = logging.getLogger('itinerum-tripkit-cli.runners.itinerum')
 
@@ -21,27 +21,6 @@ def load_users(tripkit, user_id):
         logger.info(f'Loading user by ID: {user_id}')
         return [tripkit.load_users(uuid=user_id)]
     return tripkit.load_users()
-
-
-def create_activity_locations(user):
-    Coordinate = namedtuple('Coordinate', ['latitude', 'longitude'])
-    locations = {
-        'home': Coordinate(
-            latitude=user.survey_response['location_home_lat'], longitude=user.survey_response['location_home_lon']
-        )
-    }
-    work = Coordinate(
-        latitude=user.survey_response.get('location_work_lat'), longitude=user.survey_response.get('location_work_lon')
-    )
-    if work.latitude and work.longitude:
-        locations['work'] = work
-    study = Coordinate(
-        latitude=user.survey_response.get('location_study_lat'),
-        longitude=user.survey_response.get('location_study_lon'),
-    )
-    if study.latitude and study.longitude:
-        locations['study'] = study
-    return locations
 
 
 def detect_trips(cfg, tripkit, user):
@@ -66,7 +45,7 @@ def detect_complete_day_summaries(cfg, tripkit, user):
 
 
 def detect_activity_summaries(cfg, tripkit, user):
-    locations = create_activity_locations(user)
+    locations = utils.itinerum.create_activity_locations(user)
     activity = tripkit.process.activities.triplab.detect.run(user, locations, cfg.SEMANTIC_LOCATION_PROXIMITY_METERS)
     activity_summaries_full = tripkit.process.activities.triplab.summarize.run_full(activity, cfg.TIMEZONE)
     duration_cols = [

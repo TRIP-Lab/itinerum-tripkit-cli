@@ -4,3 +4,5 @@ cli-venv
 input
 itinerum_tripkit_cli.egg-info
 output
+build
+dist

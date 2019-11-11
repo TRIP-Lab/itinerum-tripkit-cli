@@ -1,9 +1,9 @@
-from setuptools import setup
+import setuptools
 
 with open('README.md', 'r') as fh:
     long_description = fh.read()
 
-setup(
+setuptools.setup(
     name='itinerum-tripkit-cli',
     version='0.0.1',
     author='Kyle Fitzsimmons',

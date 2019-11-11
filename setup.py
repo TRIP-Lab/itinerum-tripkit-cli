@@ -12,7 +12,7 @@ setup(
     py_modules=['cli'],
     install_requires=[
         'Click',
-        'itinerum-tripkit==0.0.3',
+        'itinerum-tripkit==0.0.4',
     ],
     entry_points='''
         [console_scripts]

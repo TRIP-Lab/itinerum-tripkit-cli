@@ -11,22 +11,37 @@ The `itinerum-tripkit-cli` makes using the `itinerum-tripkit` library fast and s
 	### Itinerum
 	```bash
 	$ pip install itinerum-tripkit-cli
-	$ tripkit-cli -c config.py itinerum
+	$ tripkit-cli -v -c config.py
 	```
 
 	### QStarz
 	```bash
 	$ pip install itinerum-tripkit-cli
-	$ tripkit-cli -c config.py qstarz
+	$ tripkit-cli -v -c config.py
 	```
 
-## Config
+## Quick comands
+*Show help:*
+```bash
+$ tripkit-cli --help
+```
 
+*Increase logging verbosity:*
+```bash
+$ tripkit-cli -v   # verbose
+$ tripkit-cli -vv  # very verbose
+```
+
+*Supply config:*
+```bash
+$ tripkit-cli -c config.py
+```
+
+## Config
 *Sample config:*
 
 ```python
-# filename for the itinerum-cli database
-DATABASE_FN = 'itinerum_data.sqlite'
+SURVEY_NAME = 'itinerum_survey'
 
 # path of raw data directory exported from Itinerum platform or Qstarz
 INPUT_DATA_DIR = './input/csv-data-dir'
@@ -48,12 +63,7 @@ TRIP_DETECTION_ACCURACY_CUTOFF_METERS = 50
 # timezone of study area for calculating complete trip days
 TIMEZONE = 'America/Montreal'
 
-# semantic location columns in survey responses ('name': [lat_column, lon_column])
-SEMANTIC_LOCATIONS = {
-    'home': ['location_home_lat', 'location_home_lon'],
-    'work': ['location_work_lat', 'location_work_lon'],
-    'study': ['location_study_lat', 'location_study_lon']
-}
+# semantic location radius for activity dwell tallies
 SEMANTIC_LOCATION_PROXIMITY_METERS = 50
 
 # OSRM map matcher API URLs

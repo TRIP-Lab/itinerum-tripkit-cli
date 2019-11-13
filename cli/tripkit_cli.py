@@ -6,7 +6,7 @@ import logging
 import os
 import sys
 
-import runners
+from cli import runners
 
 
 def dynamic_import(filepath, module_name):

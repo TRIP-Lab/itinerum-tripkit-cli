@@ -29,8 +29,8 @@ def load_users(tripkit, user_id):
     return tripkit.load_users()
 
 
-def write_input_data(user):
-    tripkit.io.write_input_geojson(
+def write_input_data(tripkit, user):
+    tripkit.io.geojson.write_inputs(
         fn_base=user.uuid,
         coordinates=user.coordinates,
         prompts=user.prompt_responses,
@@ -101,7 +101,7 @@ def run(ctx, user_id, write_inputs, trips_only, complete_days_only, activity_sum
             if len(users) > 1:
                 cli.echo('Warning: Multiple users selected, continue writing input data? (y/n)')
                 sys.exit(1)
-            write_input_data(user)
+            write_input_data(tripkit, user)
 
         if trips_only:
             if not user.coordinates.count():

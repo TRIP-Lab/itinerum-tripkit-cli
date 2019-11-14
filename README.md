@@ -7,17 +7,19 @@ The `itinerum-tripkit-cli` makes using the `itinerum-tripkit` library fast and s
 
 1. Create an `./input` and `./output` directory. Copy source .csv data to `./input`.
 2. Edit a `config.py` file with data filepaths and trip processing parameters.
-3. Run the tripkit command-line tool:
-	### Itinerum
+3. Run the tripkit command-line tool*:
 	```bash
 	$ pip install itinerum-tripkit-cli
 	$ tripkit-cli -v -c config.py
 	```
 
-	### QStarz
+*On Windows, GDAL and Fiona dependencies are required. These easiest way to install these packages is to download [pre-compiled versions](https://www.lfd.uci.edu/~gohlke/pythonlibs/):
+	- GDAL: https://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal
+	- Fiona: https://www.lfd.uci.edu/~gohlke/pythonlibs/#fiona
+
 	```bash
-	$ pip install itinerum-tripkit-cli
-	$ tripkit-cli -v -c config.py
+	$ pip install .\GDAL-3.0.2-cp37-cp37m-win_amd64.whl
+	$ pip install .\Fiona-1.8.11-cp37-cp37m-win_amd64.whl
 	```
 
 ## Quick comands

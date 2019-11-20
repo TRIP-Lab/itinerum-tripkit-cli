@@ -22,16 +22,17 @@ def dynamic_import(filepath, module_name):
 @click.option('-v', '--verbose', is_flag=True, help='Enable info logging output to console.')
 @click.option('-vv', '--very-verbose', is_flag=True, help='Enable debug logging output to console.')
 @click.option('-u', '--user', 'user_id', help='The user ID to process a single user only.')
-@click.option('-wi', '--write-inputs', is_flag=True, help='Write input .csv coordinates data to GIS format.')
-@click.option('-wg', '--write-geo', is_flag=True, help='Write output GIS data for each user in survey.')
 @click.option('-t', '--trips', 'trips_only', is_flag=True, help='Detect only trips for the given user(s).')
 @click.option('-cd', '--complete-days', 'complete_days_only', is_flag=True, help='Detect only complete day summaries for the given user(s).')
 @click.option('-a', '--activities', 'activity_summaries_only', is_flag=True, help='Detect only activities summaries for the given user(s).')
+@click.option('-cn', '--condensed', 'condensed_output', is_flag=True, help='(QStarz only) Create a condensed output with a locations file, trips summaries, and aggregate survey summary.')
+@click.option('-wi', '--write-inputs', is_flag=True, help='Write input .csv coordinates data to GIS format.')
+@click.option('-wg', '--write-geo', is_flag=True, help='Write output GIS data for each user in survey.')
 @click.pass_context
 def main(ctx, config_fp, verbose, very_verbose, *ivk_args, **ivk_kwargs):
     '''
-    The itinerum-tripkit-cli provides an easy interface for using the itinerum-tripkit processing library
-    on Itinerum or QStarz .csv data from start-to-finish.
+    The itinerum-tripkit-cli provides an interface for using the itinerum-tripkit processing library
+    on Itinerum or QStarz .csv data.
     '''
     if not os.path.exists(config_fp):
         click.echo('Error: config could not be found.')

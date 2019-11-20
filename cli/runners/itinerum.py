@@ -48,7 +48,7 @@ def detect_complete_day_summaries(cfg, tripkit, user, append=False):
 
 def detect_activity_summaries(cfg, tripkit, user, append=False):
     locations = utils.itinerum.create_activity_locations(user)
-    activity = tripkit.process.activities.triplab.detect.run(user, locations, cfg.SEMANTIC_LOCATION_PROXIMITY_METERS)
+    activity = tripkit.process.activities.triplab.detect.run(user, locations, cfg.ACTIVITY_LOCATION_PROXIMITY_METERS)
     activity_summaries_full = tripkit.process.activities.triplab.summarize.run_full(activity, cfg.TIMEZONE)
     duration_cols = [
         'commute_time_work_s',

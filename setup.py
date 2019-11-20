@@ -5,7 +5,7 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name='itinerum-tripkit-cli',
-    version='0.0.8',
+    version='0.0.9',
     author='Kyle Fitzsimmons',
     author_email='kafitz22@gmail.com',
     description='A command-line interface for running the itinerum-tripkit library',

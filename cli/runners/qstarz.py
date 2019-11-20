@@ -59,7 +59,7 @@ def detect_activity_locations(cfg, tripkit, user, prepared_coordinates, write_ge
         delta_heading_stdev_groups = tripkit.process.clustering.delta_heading_stdev.run(prepared_coordinates)
         locations = tripkit.process.activities.canue.detect_locations.run(kmeans_groups, delta_heading_stdev_groups)
     if write_geo:
-        tripkit.io.geojson.write_semantic_locations(fn_base=user.uuid, locations=locations)
+        tripkit.io.geojson.write_activity_locations(fn_base=user.uuid, locations=locations)
     return locations
 
 
@@ -83,7 +83,7 @@ def detect_complete_day_summaries(cfg, tripkit, user, append=False):
 
 def detect_activity_summaries(cfg, tripkit, user, locations, append=False):
     logger.debug('Generating dwell time at activity locations summaries...')
-    activity = tripkit.process.activities.canue.tally_times.run(user, locations, cfg.SEMANTIC_LOCATION_PROXIMITY_METERS)
+    activity = tripkit.process.activities.canue.tally_times.run(user, locations, cfg.ACTIVITY_LOCATION_PROXIMITY_METERS)
     activity_summaries = tripkit.process.activities.canue.summarize.run_full(activity, cfg.TIMEZONE)
     tripkit.io.csv.write_activities_daily(activity_summaries['records'], extra_cols=activity_summaries['duration_keys'], append=append)
 

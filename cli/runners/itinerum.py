@@ -63,7 +63,7 @@ def detect_activity_summaries(tripkit, user, append=False):
 def write_input_data(tripkit, user):
     output_fmt = tripkit.config.GIS_OUTPUT_FORMAT
     if output_fmt.lower() == 'shp':
-        tripkit.io.shp.write_inputs(
+        tripkit.io.shapefile.write_inputs(
             fn_base=user.uuid,
             coordinates=user.coordinates,
             prompts=user.prompt_responses,
@@ -92,7 +92,7 @@ def write_input_data(tripkit, user):
 def write_geodata_trips(tripkit, user):
     output_fmt = tripkit.config.GIS_OUTPUT_FORMAT
     if output_fmt.lower() == 'shp':
-        tripkit.io.shp.write_trips(fn_base=user.uuid, trips=user.trips)
+        tripkit.io.shapefile.write_trips(fn_base=user.uuid, trips=user.trips)
     elif output_fmt.lower() == 'gpkg':
         tripkit.io.geopackage.write_trips(fn_base=user.uuid, trips=user.trips)
     elif output_fmt.lower() == 'geojson':

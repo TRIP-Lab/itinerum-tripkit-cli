@@ -50,7 +50,7 @@ def detect_activity_locations(tripkit, user, prepared_coordinates, write_geo):
         delta_heading_stdev_groups = tripkit.process.clustering.delta_heading_stdev.run(prepared_coordinates)
         locations = tripkit.process.activities.canue.detect_locations.run(kmeans_groups, delta_heading_stdev_groups)
     if write_geo:
-        tripkit.io.geojson.write_activity_locations(fn_base=user.uuid, locations=locations)
+        write_geodata_activity_locations(tripkit, user, locations)
     return locations
 
 
@@ -59,7 +59,7 @@ def detect_trips(tripkit, user, prepared_coordinates, locations, write_geo, appe
     user.trips = tripkit.process.trip_detection.canue.algorithm.run(tripkit.config, prepared_coordinates, locations)
     tripkit.database.save_trips(user, user.trips)
     if write_geo:
-        tripkit.io.geojson.write_trips(fn_base=user.uuid, trips=user.trips)
+        write_geodata_trips(tripkit, user)
     trip_summaries = tripkit.process.trip_detection.canue.summarize.run(user, tripkit.config.TIMEZONE)
     fn_base = append_to if append_to else user.uuid
     tripkit.io.csv.write_trip_summaries(fn_base=fn_base, summaries=trip_summaries, append=append_to)
@@ -91,7 +91,7 @@ def create_condensed_output(tripkit, user, prepared_coordinates, locations):
 def write_input_data(tripkit, user):
     output_fmt = tripkit.config.GIS_OUTPUT_FORMAT
     if output_fmt.lower() == 'shp':
-        tripkit.io.shp.write_inputs(
+        tripkit.io.shapefile.write_inputs(
             fn_base=user.uuid,
             coordinates=user.coordinates,
             prompts=user.prompt_responses,
@@ -120,11 +120,25 @@ def write_input_data(tripkit, user):
 def write_geodata_trips(tripkit, user):
     output_fmt = tripkit.config.GIS_OUTPUT_FORMAT
     if output_fmt.lower() == 'shp':
-        tripkit.io.shp.write_trips(fn_base=user.uuid, trips=user.trips)
+        tripkit.io.shapefile.write_trips(fn_base=user.uuid, trips=user.trips)
     elif output_fmt.lower() == 'gpkg':
         tripkit.io.geopackage.write_trips(fn_base=user.uuid, trips=user.trips)
     elif output_fmt.lower() == 'geojson':
         tripkit.io.geojson.write_trips(fn_base=user.uuid, trips=user.trips)
+    else:
+        msg = f'Error: file format {output_fmt} not recognized.'
+        click.echo(msg)
+        sys.exit(1)
+
+
+def write_geodata_activity_locations(tripkit, user, locations):
+    output_fmt = tripkit.config.GIS_OUTPUT_FORMAT
+    if output_fmt.lower() == 'shp':
+        tripkit.io.shapefile.write_activity_locations(fn_base=user.uuid, locations=locations)
+    elif output_fmt.lower() == 'gpkg':
+        tripkit.io.geopackage.write_activity_locations(fn_base=user.uuid, locations=locations)
+    elif output_fmt.lower() == 'geojson':
+        tripkit.io.geojson.write_activity_locations(fn_base=user.uuid, locations=locations)
     else:
         msg = f'Error: file format {output_fmt} not recognized.'
         click.echo(msg)

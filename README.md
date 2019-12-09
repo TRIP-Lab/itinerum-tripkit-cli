@@ -10,16 +10,16 @@ The `itinerum-tripkit-cli` makes using the `itinerum-tripkit` library fast and s
 3. Run the tripkit command-line tool*:
 	```bash
 	$ pip install itinerum-tripkit-cli
-	$ tripkit-cli -v -c config.py
+	$ tripkit-cli -c config.py
 	```
 
-*On Windows, GDAL and Fiona dependencies are required. These easiest way to install these packages is to download [pre-compiled versions](https://www.lfd.uci.edu/~gohlke/pythonlibs/):
+*On Windows, GDAL and Fiona dependencies are required. These easiest way to install these packages is to first download and install the [Visual C++ Redistributable for Visual Studio 2015](https://www.microsoft.com/en-ca/download/details.aspx?id=48145). Once available, [compiled versions](https://www.lfd.uci.edu/~gohlke/pythonlibs/) can be installed with Python's `pip`:
 	- GDAL: https://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal
 	- Fiona: https://www.lfd.uci.edu/~gohlke/pythonlibs/#fiona
 
 	```bash
 	$ pip install .\GDAL-3.0.2-cp37-cp37m-win_amd64.whl
-	$ pip install .\Fiona-1.8.11-cp37-cp37m-win_amd64.whl
+	$ pip install .\Fiona-1.8.13-cp37-cp37m-win_amd64.whl
 	```
 
 ## Quick comands
@@ -28,10 +28,10 @@ The `itinerum-tripkit-cli` makes using the `itinerum-tripkit` library fast and s
 $ tripkit-cli --help
 ```
 
-*Increase logging verbosity:*
+*Logging verbosity:*
 ```bash
-$ tripkit-cli -v   # verbose
-$ tripkit-cli -vv  # very verbose
+$ tripkit-cli -q  # quiet (no output messages)
+$ tripkit-cli -v  # verbose
 ```
 
 *Supply config:*
@@ -39,10 +39,18 @@ $ tripkit-cli -vv  # very verbose
 $ tripkit-cli -c config.py
 ```
 
+*Write GIS data outputs*
+```bash
+$ tripkit-cli
+```
+
 ## Config
 *Sample config:*
 
 ```python
+##
+## itinerum-tripkit configuration
+##
 SURVEY_NAME = 'itinerum_survey'
 
 # path of raw data directory exported from Itinerum platform or Qstarz
@@ -66,10 +74,17 @@ TRIP_DETECTION_ACCURACY_CUTOFF_METERS = 50
 TIMEZONE = 'America/Montreal'
 
 # semantic location radius for activity dwell tallies
-SEMANTIC_LOCATION_PROXIMITY_METERS = 50
+ACTIVITY_LOCATION_PROXIMITY_METERS = 50
 
 # OSRM map matcher API URLs
 MAP_MATCHING_BIKING_API_URL = 'https://osrm.server.com/match/v1/biking/'
 MAP_MATCHING_DRIVING_API_URL = 'https://osrm.server.com/match/v1/driving/'
 MAP_MATCHING_WALKING_API_URL = 'https://osrm.server.com/match/v1/walking/'
+
+##
+## itinerum-tripkit-cli configuration
+##
+# GIS output formats: shp (shapefile), gpkg (geopackage), geojson
+GIS_OUTPUT_FORMAT = 'shp'
+
 ```

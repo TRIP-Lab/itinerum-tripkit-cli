@@ -19,8 +19,8 @@ def dynamic_import(filepath, module_name):
 # TODO: rename function
 @click.command()
 @click.option('-c', '--config', 'config_fp', default='./tripkit_config.py', help='A Python file of global variables to set processing parameters.')
-@click.option('-v', '--verbose', is_flag=True, help='Enable info logging output to console.')
-@click.option('-vv', '--very-verbose', is_flag=True, help='Enable debug logging output to console.')
+@click.option('-q', '--verbose', is_flag=True, help='Enable info logging output to console.')
+@click.option('-q', '--quiet', is_flag=True, help='Output only warnings to console.')
 @click.option('-u', '--user', 'user_id', help='The user ID to process a single user only.')
 @click.option('-t', '--trips', 'trips_only', is_flag=True, help='Detect only trips for the given user(s).')
 @click.option('-cd', '--complete-days', 'complete_days_only', is_flag=True, help='Detect only complete day summaries for the given user(s).')
@@ -29,7 +29,7 @@ def dynamic_import(filepath, module_name):
 @click.option('-wi', '--write-inputs', is_flag=True, help='Write input .csv coordinates data to GIS format.')
 @click.option('-wg', '--write-geo', is_flag=True, help='Write output GIS data for each user in survey.')
 @click.pass_context
-def main(ctx, config_fp, verbose, very_verbose, *ivk_args, **ivk_kwargs):
+def main(ctx, config_fp, verbose, quiet, *ivk_args, **ivk_kwargs):
     '''
     The itinerum-tripkit-cli provides an interface for using the itinerum-tripkit processing library
     on Itinerum or QStarz .csv data.
@@ -41,10 +41,12 @@ def main(ctx, config_fp, verbose, very_verbose, *ivk_args, **ivk_kwargs):
     ctx.obj = {'config': cfg}
 
     logging.getLogger('peewee').setLevel(logging.INFO)  # mute peewee query debugs
-    if verbose:
-        logging.basicConfig(level=logging.INFO)
-    if very_verbose:
+    if quiet:
+        logging.basicConfig(level=logging.WARNING)
+    elif verbose:
         logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
 
     if cfg.INPUT_DATA_TYPE == 'itinerum':
         ctx.invoke(runners.itinerum.run, **ivk_kwargs)

@@ -29,15 +29,6 @@ def load_users(tripkit, user_id):
     return tripkit.load_users()
 
 
-def write_input_data(tripkit, user):
-    tripkit.io.geojson.write_inputs(
-        fn_base=user.uuid,
-        coordinates=user.coordinates,
-        prompts=user.prompt_responses,
-        cancelled_prompts=user.cancelled_prompt_responses,
-    )
-
-
 def cache_prepared_data(tripkit, user):
     pickle_fp = temp_path(f'{user.uuid}.pickle')
     if not os.path.exists(pickle_fp):
@@ -51,7 +42,7 @@ def cache_prepared_data(tripkit, user):
     return prepared_coordinates
 
 
-def detect_activity_locations(cfg, tripkit, user, prepared_coordinates, write_geo):
+def detect_activity_locations(tripkit, user, prepared_coordinates, write_geo):
     logger.debug('Clustering coordinates to determine activity locations between trips...')
     locations = user.activity_locations
     if not locations:
@@ -63,38 +54,81 @@ def detect_activity_locations(cfg, tripkit, user, prepared_coordinates, write_ge
     return locations
 
 
-def detect_trips(cfg, tripkit, user, prepared_coordinates, locations, write_geo, append_to=None):
+def detect_trips(tripkit, user, prepared_coordinates, locations, write_geo, append_to=None):
     logger.debug('Detecting trips from GPS coordinates data...')
-    user.trips = tripkit.process.trip_detection.canue.algorithm.run(cfg, prepared_coordinates, locations)
+    user.trips = tripkit.process.trip_detection.canue.algorithm.run(tripkit.config, prepared_coordinates, locations)
     tripkit.database.save_trips(user, user.trips)
     if write_geo:
         tripkit.io.geojson.write_trips(fn_base=user.uuid, trips=user.trips)
-    trip_summaries = tripkit.process.trip_detection.canue.summarize.run(user, cfg.TIMEZONE)
+    trip_summaries = tripkit.process.trip_detection.canue.summarize.run(user, tripkit.config.TIMEZONE)
     fn_base = append_to if append_to else user.uuid
     tripkit.io.csv.write_trip_summaries(fn_base=fn_base, summaries=trip_summaries, append=append_to)
 
 
-def detect_complete_day_summaries(cfg, tripkit, user, append=False):
+def detect_complete_day_summaries(tripkit, user, append=False):
     logger.debug('Generating complete days summaries...')
-    complete_day_summaries = tripkit.process.complete_days.canue.counter.run(user.trips, cfg.TIMEZONE)
-    tripkit.database.save_trip_day_summaries(user, complete_day_summaries, cfg.TIMEZONE)
+    complete_day_summaries = tripkit.process.complete_days.canue.counter.run(user.trips, tripkit.config.TIMEZONE)
+    tripkit.database.save_trip_day_summaries(user, complete_day_summaries, tripkit.config.TIMEZONE)
     tripkit.io.csv.write_complete_days({user.uuid: complete_day_summaries}, append=append)
 
 
-def detect_activity_summaries(cfg, tripkit, user, locations, append=False):
+def detect_activity_summaries(tripkit, user, locations, append=False):
     logger.debug('Generating dwell time at activity locations summaries...')
-    activity = tripkit.process.activities.canue.tally_times.run(user, locations, cfg.ACTIVITY_LOCATION_PROXIMITY_METERS)
-    activity_summaries = tripkit.process.activities.canue.summarize.run_full(activity, cfg.TIMEZONE)
+    activity = tripkit.process.activities.canue.tally_times.run(user, locations, tripkit.config.ACTIVITY_LOCATION_PROXIMITY_METERS)
+    activity_summaries = tripkit.process.activities.canue.summarize.run_full(activity, tripkit.config.TIMEZONE)
     tripkit.io.csv.write_activities_daily(activity_summaries['records'], extra_cols=activity_summaries['duration_keys'], append=append)
 
 
-def create_condensed_output(cfg, tripkit, user, prepared_coordinates, locations):
+def create_condensed_output(tripkit, user, prepared_coordinates, locations):
     logger.debug('Detecting trips from GPS coordinates data...')
-    user.trips = tripkit.process.trip_detection.canue.algorithm.run(cfg, prepared_coordinates, locations)
-    trip_summaries = tripkit.process.trip_detection.canue.summarize.run(user, cfg.TIMEZONE)
-    complete_day_summaries = tripkit.process.complete_days.canue.counter.run(user.trips, cfg.TIMEZONE)
+    user.trips = tripkit.process.trip_detection.canue.algorithm.run(tripkit.config, prepared_coordinates, locations)
+    trip_summaries = tripkit.process.trip_detection.canue.summarize.run(user, tripkit.config.TIMEZONE)
+    complete_day_summaries = tripkit.process.complete_days.canue.counter.run(user.trips, tripkit.config.TIMEZONE)
     tripkit.io.csv.write_condensed_activity_locations(user)
     tripkit.io.csv.write_condensed_trip_summaries(user, trip_summaries, complete_day_summaries)
+
+
+def write_input_data(tripkit, user):
+    output_fmt = tripkit.config.GIS_OUTPUT_FORMAT
+    if output_fmt.lower() == 'shp':
+        tripkit.io.shp.write_inputs(
+            fn_base=user.uuid,
+            coordinates=user.coordinates,
+            prompts=user.prompt_responses,
+            cancelled_prompts=user.cancelled_prompt_responses,
+        )
+    elif output_fmt.lower() == 'gpkg':
+        tripkit.io.geopackage.write_inputs(
+            fn_base=user.uuid,
+            coordinates=user.coordinates,
+            prompts=user.prompt_responses,
+            cancelled_prompts=user.cancelled_prompt_responses,
+        )
+    elif output_fmt.lower() == 'geojson':
+        tripkit.io.geojson.write_inputs(
+            fn_base=user.uuid,
+            coordinates=user.coordinates,
+            prompts=user.prompt_responses,
+            cancelled_prompts=user.cancelled_prompt_responses,
+        )
+    else:
+        msg = f'Error: file format {output_fmt} not recognized.'
+        click.echo(msg)
+        sys.exit(1)
+
+
+def write_geodata_trips(tripkit, user):
+    output_fmt = tripkit.config.GIS_OUTPUT_FORMAT
+    if output_fmt.lower() == 'shp':
+        tripkit.io.shp.write_trips(fn_base=user.uuid, trips=user.trips)
+    elif output_fmt.lower() == 'gpkg':
+        tripkit.io.geopackage.write_trips(fn_base=user.uuid, trips=user.trips)
+    elif output_fmt.lower() == 'geojson':
+        tripkit.io.geojson.write_trips(fn_base=user.uuid, trips=user.trips)
+    else:
+        msg = f'Error: file format {output_fmt} not recognized.'
+        click.echo(msg)
+        sys.exit(1)
 
 
 @click.command()
@@ -130,30 +164,30 @@ def run(ctx, user_id, trips_only, complete_days_only, activity_summaries_only, c
                 click.echo(f'No coordinates available for user: {user.uuid}')
                 sys.exit(1)
             prepared_coordinates = cache_prepared_data(tripkit, user)
-            locations = detect_activity_locations(cfg, tripkit, user, prepared_coordinates, write_geo)
-            detect_trips(cfg, tripkit, user, prepared_coordinates, locations, write_geo, append_to=append_fn_base)
+            locations = detect_activity_locations(tripkit, user, prepared_coordinates, write_geo)
+            detect_trips(tripkit, user, prepared_coordinates, locations, write_geo, append_to=append_fn_base)
         elif complete_days_only:
             if not user.trips:
                 click.echo(f'No trips available for user: {user.uuid}')
                 sys.exit(1)
-            detect_complete_day_summaries(cfg, tripkit, user, append=append_mode)
+            detect_complete_day_summaries(tripkit, user, append=append_mode)
         elif activity_summaries_only:
             if not user.trips:
                 click.echo(f'No trips available for user: {user.uuid}')
                 sys.exit(1)
             prepared_coordinates = cache_prepared_data(tripkit, user)
-            locations = detect_activity_locations(cfg, tripkit, user, prepared_coordinates, write_geo)
-            detect_activity_summaries(cfg, tripkit, user, locations, append=append_mode)
+            locations = detect_activity_locations(tripkit, user, prepared_coordinates, write_geo)
+            detect_activity_summaries(tripkit, user, locations, append=append_mode)
         elif condensed_output:
             prepared_coordinates = cache_prepared_data(tripkit, user)
-            locations = detect_activity_locations(cfg, tripkit, user, prepared_coordinates, write_geo)
-            create_condensed_output(cfg, tripkit, user, prepared_coordinates, locations)
+            locations = detect_activity_locations(tripkit, user, prepared_coordinates, write_geo)
+            create_condensed_output(tripkit, user, prepared_coordinates, locations)
         else:
             prepared_coordinates = cache_prepared_data(tripkit, user)
-            locations = detect_activity_locations(cfg, tripkit, user, prepared_coordinates, write_geo)
-            detect_trips(cfg, tripkit, user, prepared_coordinates, locations, write_geo, append_to=append_fn_base)
+            locations = detect_activity_locations(tripkit, user, prepared_coordinates, write_geo)
+            detect_trips(tripkit, user, prepared_coordinates, locations, write_geo, append_to=append_fn_base)
             if not user.trips:
                 click.echo(f'No trips available for user: {user.uuid}')
                 sys.exit(1)
-            detect_complete_day_summaries(cfg, tripkit, user, append=append_mode)
-            detect_activity_summaries(cfg, tripkit, user, locations, append=append_mode)
+            detect_complete_day_summaries(tripkit, user, append=append_mode)
+            detect_activity_summaries(tripkit, user, locations, append=append_mode)

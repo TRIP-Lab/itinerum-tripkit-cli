@@ -6,3 +6,6 @@ itinerum_tripkit_cli.egg-info
 output
 build
 dist
+
+itinerum_config.py
+qstarz_config.py

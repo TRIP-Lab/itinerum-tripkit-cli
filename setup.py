@@ -1,11 +1,12 @@
 import setuptools
+from .version import __version__
 
 with open('README.md', 'r') as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name='itinerum-tripkit-cli',
-    version='0.0.11',
+    version=__version__,
     author='Kyle Fitzsimmons',
     author_email='kafitz22@gmail.com',
     description='A command-line interface for running the itinerum-tripkit library',

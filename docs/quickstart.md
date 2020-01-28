@@ -41,6 +41,7 @@ The `itinerum-tripkit-cli` is designed to get started with using the `itinerum-t
 
 **Config sample**: 
 Configs named `tripkit_config.py` will be used automatically; configs with other filenames can be specified with the `-c` parameter).
+
 ```python
 #!/usr/bin/env python
 

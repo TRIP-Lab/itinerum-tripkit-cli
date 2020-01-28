@@ -20,13 +20,24 @@ The `itinerum-tripkit-cli` is designed to get started with using the `itinerum-t
 <p>
 
 3. Install all project dependencies. Installations on MacOS and Linux can create the virtual environment and skip directly to the `pip install itinerum-tripkit-cli` command.
-  [![itinerum-tripkit-cli - 2 - Install all dependencies](http://img.youtube.com/vi/7aO8sN5PT0k/0.jpg)](https://www.youtube.com/watch?v=7aO8sN5PT0k)
-4. Create the directories for input and output data. Add source .csv coordinates and subway stations data (if declared in config). Add the tripkit configuration file (sample below),
-  [![itinerum-tripkit-cli - 3 - Setup data directories and config file](http://img.youtube.com/vi/PAxH0J_h7Io/0.jpg)](https://www.youtube.com/watch?v=PAxH0J_h7Io)
+
+<p align="center">
+	<iframe width="560" height="315" src="https://www.youtube.com/embed/7aO8sN5PT0k" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<p>
+
+4. Create the directories for input and output data. Add source .csv coordinates and subway stations data (if declared in config). Add the tripkit configuration file (sample below).
+
+<p align="center">
+	<iframe width="560" height="315" src="https://www.youtube.com/embed/PAxH0J_h7Io" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<p>
 
 **Running**:
 1. Run the `itinerum-tripkit-cli` with the desired options (available from help menu)
-  [![itinerum-tripkit-cli - 4 - Run trip detection on data](http://img.youtube.com/vi/tFTmxo9wTlI/0.jpg)](https://www.youtube.com/watch?v=tFTmxo9wTlI)
+  [![itinerum-tripkit-cli - 4 - Run trip detection on data]
+  
+<p align="center">
+	<iframe width="560" height="315" src="https://www.youtube.com/embed/tFTmxo9wTlI" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<p>
 
 **Config sample**: 
 Configs named `tripkit_config.py` will be used automatically; configs with other filenames can be specified with the `-c` parameter).

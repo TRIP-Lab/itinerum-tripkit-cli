@@ -9,7 +9,7 @@ The `itinerum-tripkit-cli` is designed to get started with using the `itinerum-t
 	- Compiled binaries for GDAL and Fiona dependencies (find these [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/)). Be sure to download the library version compatible with your Python installation (e.g., `GDAL‑3.0.3‑cp37‑cp37m‑win_amd64.whl` for 64-bit Python 3.7)
 
 ---
-**Windows PowerShell note* *
+**Note on Windows PowerShell**
 
 If activating the virtual environment gives the error "Running scripts is disabled on this system", PowerShell must be set to allow unsigned scripts. This can be fixed by running `Set-ExecutionPolicy Unrestricted -Force` and restarting the shell. For more information, see the [Python Virtual Env documentation](https://virtualenv.pypa.io/en/latest/userguide/).
 

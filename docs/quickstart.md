@@ -19,17 +19,17 @@ If activating the virtual environment gives the error "Running scripts is disabl
 **Installation:**
 1. Create a project workspace
 2. *Windows only*: Add compiled binary dependencies to an easily accessible directory. In the video example, a `vendor` folder is created and used.
-<p align="center">
-	<iframe width="560" height="315" src="https://www.youtube.com/embed/z6biRgyzDVg" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-</p>
+	<p align="center">
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/z6biRgyzDVg" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+	</p>
 3. Install all project dependencies. Installations on MacOS and Linux can create the virtual environment and skip directly to the `pip install itinerum-tripkit-cli` command.
-<p align="center">
-	<iframe width="560" height="315" src="https://www.youtube.com/embed/7aO8sN5PT0k" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-</p>
+	<p align="center">
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/7aO8sN5PT0k" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+	</p>
 4. Create the directories for input and output data. Add source .csv coordinates and subway stations data (if declared in config). Add the tripkit configuration file (sample below).
-<p align="center">
-	<iframe width="560" height="315" src="https://www.youtube.com/embed/PAxH0J_h7Io" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-</p>
+	<p align="center">
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/PAxH0J_h7Io" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+	</p>
 
 **Running**:
 1. Run the `itinerum-tripkit-cli` with the desired options (available from help menu)

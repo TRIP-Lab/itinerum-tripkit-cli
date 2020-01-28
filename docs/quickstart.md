@@ -15,7 +15,9 @@ The `itinerum-tripkit-cli` is designed to get started with using the `itinerum-t
 1. Create a project workspace
 2. *Windows only*: Add compiled binary dependencies to an easily accessible directory. In the video example, a `vendor` folder is created and used.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/z6biRgyzDVg" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<p align="center">
+	<iframe width="560" height="315" src="https://www.youtube.com/embed/z6biRgyzDVg" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<p>
 
 3. Install all project dependencies. Installations on MacOS and Linux can create the virtual environment and skip directly to the `pip install itinerum-tripkit-cli` command.
   [![itinerum-tripkit-cli - 2 - Install all dependencies](http://img.youtube.com/vi/7aO8sN5PT0k/0.jpg)](https://www.youtube.com/watch?v=7aO8sN5PT0k)

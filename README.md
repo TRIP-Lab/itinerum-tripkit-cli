@@ -3,7 +3,7 @@
 
 [![Python Version](https://img.shields.io/badge/Python-3.6%7C3.7-blue.svg?style=flat-square)]()
 
-Getting started with `itinerum-tripkit-cli`: https://trip-lab.github.io/itinerum-tripkit-cli/quickstart
+Want to get up and running fast? Try the [itinerum-tripkit-cli quickstart guide](https://trip-lab.github.io/itinerum-tripkit-cli/quickstart)!
 
 
 ## Quick comands

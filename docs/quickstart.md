@@ -1,6 +1,6 @@
 # Getting started with itinerum-tripkit-cli
 
-The `itinerum-tripkit-cli` is designed to get started with using the `itinerum-tripkit` library easily and without requiring to write any code. Nevertheless, as a Python command-line utility, some setup is required.
+The `itinerum-tripkit-cli` is designed to get started with using the `itinerum-tripkit` library easily and without needing to write any code. Nevertheless, as a Python command-line utility, some setup is required.
 
 **Requirements:**
 - Python3 installed and globally accessible from the command-line. If Python3 is available on your system as `python3`, use that instead of `python` when following this guide.
@@ -26,6 +26,14 @@ If activating the virtual environment gives the error "Running scripts is disabl
 	<p align="center">
 		<iframe width="560" height="315" src="https://www.youtube.com/embed/7aO8sN5PT0k" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 	</p>
+	*Commands:*
+	```dos
+	python -m venv tripkit-venv
+	tripkit-venv/Scripts/Activate.ps1
+	pip install vendor/GDAL‑3.0.3‑cp37‑cp37m‑win_amd64.whl
+	pip install vendor/Fiona‑1.8.13‑cp37‑cp37m‑win_amd64.whl
+	pip install itinerum-tripkit-cli	
+	```
 4. Create the directories for input and output data. Add source .csv coordinates and subway stations data (if declared in config). Add the tripkit configuration file (sample below).
 	<p align="center">
 		<iframe width="560" height="315" src="https://www.youtube.com/embed/PAxH0J_h7Io" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
@@ -33,9 +41,15 @@ If activating the virtual environment gives the error "Running scripts is disabl
 
 **Running**:
 1. Run the `itinerum-tripkit-cli` with the desired options (available from help menu)
-<p align="center">
-	<iframe width="560" height="315" src="https://www.youtube.com/embed/tFTmxo9wTlI" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-</p>
+	<p align="center">
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/tFTmxo9wTlI" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+	</p>
+	*Commands:*
+	```dos
+	tripkit.exe --help
+	tripkit.exe -c config_file.py
+	```
+
 
 **Config sample**: 
 Configs named `tripkit_config.py` will be used automatically; configs with other filenames can be specified with the `-c` parameter).

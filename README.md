@@ -5,7 +5,7 @@
 
 Want to get up and running fast? Try the [itinerum-tripkit-cli quickstart guide](https://trip-lab.github.io/itinerum-tripkit-cli/quickstart)!
 
-If you're more interested in taking a look under the hood, check out the underlying *itinerum-tripkit* and documentation here: https://github.com/TRIP-Lab/itinerum-tripkit
+If you're more interested in taking a look under the hood, you can find our underlying *itinerum-tripkit* and documentation here: https://github.com/TRIP-Lab/itinerum-tripkit
 
 
 ## Quick comands
